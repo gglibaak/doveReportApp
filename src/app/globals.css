@@ -9,9 +9,35 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #515b6e;
     --foreground: #ededed;
   }
+}
+
+@keyframes fadeIn {
+  from {
+    background-color: transparent;
+  }
+  to {
+    background-color: rgb(0, 183, 255);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    background-color: rgb(0, 183, 255);;
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 1s forwards;
+}
+
+.fade-out {
+  animation: fadeOut 1s forwards;
 }
 
 body {
