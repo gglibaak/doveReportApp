@@ -1,0 +1,125 @@
+'use client'
+import React, { useState, useEffect } from 'react';
+
+const Home = () => {
+  interface AccessReportItem {
+    resource: string;
+    used: number;
+    total: number;
+  }
+
+  interface ApiResponse {
+    accessReport: AccessReportItem[];
+    showName: string;
+    startDate: string;
+  }
+
+  const [data, setData] = useState<AccessReportItem[]>([]);
+  const [showName, setShowName] = useState<string>('');
+  const [startDate, setStartDate] = useState<string>('');
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       // const response = await fetch('https://api.boletius.com/DashboardsWs/access?eventId=7577&apiKey=N9S72ROHOYWB2T61AGECANB6QMSVP1V641A33U7BD8JJ3XU34PHAG8S6VDFLPDSVT0K4J7KRVQEWC99B92DARF5H0V4ESNIVV9KL3LMYW4UR9IJOXHVOC0DYHE7EDRHR&showId=60490');
+  //       const response = await fetch('https://api.boletius.com/DashboardsWs/access?eventId=6562&apiKey=7MNFQWAAKRHGAJTZQXOZ942IPW77NU88OMVC12KN5G6D2805XGAIWBK9P5HEIS4Q8QWYARZ5UUAOL5OEOL84V8WVSLK5EUCBC9G08TQ4WLD4478LHRQCU7QCYB88Z2N8&showId=41197');
+  //       const result = await response.json();
+  //       const { accessReport, showName, startDate }: ApiResponse = result.data;
+  //       setData(accessReport);
+  //       setShowName(showName);
+  //       setStartDate(new Date(startDate).toLocaleString('es-ES', { hour12: false }));
+  //       fetchData();
+  //     } catch (error) {
+  //       console.error('Error fetching data:', error);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    const fetchData = async () => {
+      try {
+        // const response = await fetch('https://api.boletius.com/DashboardsWs/access?eventId=6562&apiKey=7MNFQWAAKRHGAJTZQXOZ942IPW77NU88OMVC12KN5G6D2805XGAIWBK9P5HEIS4Q8QWYARZ5UUAOL5OEOL84V8WVSLK5EUCBC9G08TQ4WLD4478LHRQCU7QCYB88Z2N8&showId=41197');
+        const result = await response.json();
+        const { accessReport, showName, startDate }: ApiResponse = result.data;
+        setData(accessReport);
+        setShowName(showName);
+        setStartDate(new Date(startDate).toLocaleString('es-ES', { hour12: false }));
+        // fetchData();
+        console.log('Se actualizó la data');
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        timeoutId = setTimeout(fetchData, 10000); // Vuelve a llamar a fetchData después de 5 segundos
+      }
+    };
+
+    fetchData();
+
+    return () => clearTimeout(timeoutId); // Limpiar el timeout cuando el componente se desmonte
+  }, []);
+
+  const totalIngresado = data.reduce((sum, item) => sum + item.used, 0);
+  const totalFaltan = data.reduce((sum, item) => sum + (item.total - item.used), 0);
+  const totalPendiente = data.reduce((sum, item) => sum + item.total, 0);
+
+  const porcentajeIngresado = ((totalIngresado / totalPendiente) * 100).toFixed(2);
+  const porcentajeFaltan = ((totalFaltan / totalPendiente) * 100).toFixed(2);
+  // const porcentajePendiente = ((totalPendiente / totalPendiente) * 100).toFixed(2); // Siempre será 100%
+
+
+  return (
+    <div className="container mx-auto p-4">
+  <h1 className="text-2xl font-bold mb-4 text-center">{showName} - {startDate}</h1>
+  <h3 className="text-2xl font-bold mb-4 text-center">Atenas Pretensa</h3>
+  <div className="relative overflow-x-auto">
+    <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+      <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <th scope="col" className="px-6 py-3">Sector</th>
+          <th scope="col" className="px-6 py-3">Ingresados</th>
+          <th scope="col" className="px-6 py-3">Faltan</th>
+          <th scope="col" className="px-6 py-3">Estimado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((item, index) => (
+          <tr key={index} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+              {item.resource}
+            </th>
+            <td className="px-6 py-4">{item.used}</td>
+            <td className="px-6 py-4">{item.total - item.used}</td>
+            <td className="px-6 py-4">{item.total}</td>
+          </tr>
+        ))}
+        <tr className="bg-gray-200 dark:bg-gray-900">
+          <td colSpan={1} className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+            Totales
+          </td>
+          <td className="px-6 py-4 font-bold text-gray-900 whitespace-nowrap dark:text-white">
+            {totalIngresado}
+          </td>
+          <td className="px-6 py-4 font-bold text-gray-900 whitespace-nowrap dark:text-white">
+            {totalFaltan}
+          </td>
+          <td className="px-6 py-4 font-bold text-gray-900 whitespace-nowrap dark:text-white">
+            {totalPendiente}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <h2 className="text-xl font-bold mb-2">Porcentajes</h2>
+        <p className="text-gray-700 dark:text-gray-300">Porcentaje de Ingresados: <span className='font-bold'>{porcentajeIngresado}%</span></p>
+        <p className="text-gray-700 dark:text-gray-300">Porcentaje de Faltantes:  <span className='font-bold'>{porcentajeFaltan}%</span></p>
+
+      </div>
+</div>
+  );
+};
+
+export default Home;
