@@ -26,6 +26,9 @@ function Home() {
     eventDate: string;
     eventTime: string;
   }
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+
 
   const [report, setReport] = useState<RegisterItem[]>([]);
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -34,7 +37,7 @@ function Home() {
 
   const getInitialDataReport = async () => {
     try {
-      const response = await fetch(`http://localhost:8083/api/accesscontrol/identity/reports`, {
+      const response = await fetch(`${apiUrl}/api/accesscontrol/identity/reports`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +64,7 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    const socket = io('http://localhost:8083');
+    const socket = io(apiUrl);
     setPreviousReport(report);
 
     // socket.on('connection', () => {
